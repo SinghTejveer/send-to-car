@@ -14,6 +14,8 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 TESLEMETRY = "teslemetry"
+# Teslemetry names the range sensor differently when polling and when streaming; tried in this order.
+RANGE_KEYS = ("charge_state_battery_range", "rated_range", "charge_state_est_battery_range", "charge_state_ideal_battery_range")
 
 
 @dataclass(frozen=True)
@@ -83,12 +85,21 @@ def car_status(hass: HomeAssistant, device_id: str) -> dict[str, object]:
     """The car's battery level and range for the card header, from its Teslemetry sensors when they are there."""
     ent_reg = er.async_get(hass)
     found: dict[str, str] = {}
+    ranges: dict[str, str] = {}
     for e in er.async_entries_for_device(ent_reg, device_id):
         uid = e.unique_id or ""
-        if e.domain == "sensor" and uid.endswith("-charge_state_battery_level"):
+        if e.domain != "sensor" or e.disabled_by:
+            continue
+        if uid.endswith("-charge_state_battery_level"):
             found["battery"] = e.entity_id
-        elif e.domain == "sensor" and uid.endswith("-charge_state_battery_range"):
-            found["range"] = e.entity_id
+        for key in RANGE_KEYS:
+            if uid.endswith(f"-{key}"):
+                ranges[key] = e.entity_id
+    # the first range sensor, in RANGE_KEYS order, that has a number now
+    for key in RANGE_KEYS:
+        if key in ranges and _state(hass, ranges[key])[0] is not None:
+            found["range"] = ranges[key]
+            break
     battery, _ = _state(hass, found.get("battery"))
     rng, unit = _state(hass, found.get("range"))
     return {"battery": battery, "range": rng, "range_unit": unit, "battery_entity": found.get("battery"), "range_entity": found.get("range")}

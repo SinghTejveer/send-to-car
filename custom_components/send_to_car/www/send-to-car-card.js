@@ -3,7 +3,7 @@
  * Uses Home Assistant's theme variables, so it follows any theme, light or dark. No outside requests: everything goes through the
  * integration's actions (send_to_car.suggestions / search / send / add_favourite / remove_favourite). */
 (() => {
-  const VERSION = "0.2.0";
+  const VERSION = "0.2.1";
   const DOMAIN = "send_to_car";
   const MIN = 3;
   const SRC = {
@@ -306,6 +306,15 @@
       return this._sections().flatMap((s) => s.items);
     }
 
+    _range(car) {
+      if (car.range == null) return "";
+      const mi = this._hass && this._hass.config && this._hass.config.unit_system && this._hass.config.unit_system.length === "mi";
+      const unit = String(car.range_unit || "").toLowerCase();
+      if (mi && unit === "km") return `${Math.round(car.range / 1.609344)} mi`;
+      if (!mi && unit === "mi") return `${Math.round(car.range * 1.609344)} km`;
+      return `${Math.round(car.range)} ${car.range_unit || ""}`.trim();
+    }
+
     _dist(it) {
       const mi = this._hass && this._hass.config && this._hass.config.unit_system && this._hass.config.unit_system.length === "mi";
       const v = mi ? it.distance_mi : it.distance_km;
@@ -321,10 +330,7 @@
       const car = s.car;
       $("name").textContent = this._config.title || (car ? `Send to ${car.name}` : "Send to car");
       $("sub").textContent = s.last && s.last.name ? `Last sent: ${s.last.name}` : "Search, then send to the car's navigation";
-      $("batt").innerHTML =
-        car && car.battery != null
-          ? `<b>${Math.round(car.battery)}%</b>${car.range != null ? `${Math.round(car.range)} ${esc(car.range_unit || "")}` : ""}`
-          : "";
+      $("batt").innerHTML = car && car.battery != null ? `<b>${Math.round(car.battery)}%</b>${esc(this._range(car))}` : "";
       this._renderPick();
       const m = this._msg || (this._error ? { ok: false, text: this._error } : null);
       $("msg").innerHTML = m ? `<div class="msg ${m.ok ? "ok" : "err"}" role="status">${esc(m.text)}</div>` : "";

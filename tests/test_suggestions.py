@@ -103,3 +103,17 @@ async def test_remove_a_favourite_by_name(hass, setup_entry) -> None:
     again = await hass.services.async_call(DOMAIN, "remove_favourite", {"name": "Gym"}, blocking=True, return_response=True)
     assert r == {"removed": True} and again == {"removed": False}
     assert (await suggestions(hass))["favourites"] == []
+
+
+async def test_streaming_range_sensor_is_used_when_the_polling_one_is_missing(hass, setup_entry, car: str) -> None:
+    ent_reg = er.async_get(hass)
+    tes = hass.config_entries.async_entries("teslemetry")[0]
+    est = ent_reg.async_get_or_create(
+        "sensor", "teslemetry", f"{VIN}-charge_state_est_battery_range", device_id=car, config_entry=tes, suggested_object_id="est"
+    )
+    rated = ent_reg.async_get_or_create("sensor", "teslemetry", f"{VIN}-rated_range", device_id=car, config_entry=tes, suggested_object_id="rated")
+    hass.states.async_set(est.entity_id, "unknown", {"unit_of_measurement": "km"})
+    hass.states.async_set(rated.entity_id, "397.1", {"unit_of_measurement": "km"})
+    await setup_entry()
+    c = (await suggestions(hass))["car"]
+    assert c["range"] == 397.1 and c["range_unit"] == "km" and c["range_entity"] == rated.entity_id

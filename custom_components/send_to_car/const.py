@@ -29,6 +29,10 @@ ATTR_ADDRESS: Final = "address"
 SERVICE_SEARCH: Final = "search"
 SERVICE_SEND: Final = "send"
 SERVICE_ADD_FAVOURITE: Final = "add_favourite"
+SERVICE_REMOVE_FAVOURITE: Final = "remove_favourite"
+SERVICE_SUGGESTIONS: Final = "suggestions"
+
+CARD_URL: Final = "/send_to_car/send-to-car-card.js"
 
 MIN_QUERY: Final = 3
 MAX_QUERY: Final = 120

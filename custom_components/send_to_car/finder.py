@@ -126,7 +126,7 @@ class Finder:
             except pv.ProviderError as err:
                 notes.append(f"OpenStreetMap: {err}")
         results = merge(google, postcode, osm, self.mine(q, here))
-        return {"query": q, "results": [_public(r) for r in results], "source": source_of(google, osm), "notes": notes}
+        return {"query": q, "results": [public(r) for r in results], "source": source_of(google, osm), "notes": notes}
 
     async def resolve(
         self,
@@ -195,7 +195,7 @@ class Finder:
         return False
 
 
-def _public(r: Result) -> dict[str, Any]:
+def public(r: Result) -> dict[str, Any]:
     """A result as the search action returns it."""
     d = r.get("distance_m")
     return {

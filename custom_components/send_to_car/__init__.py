@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+from pathlib import Path
 from typing import Any
 
 import voluptuous as vol
@@ -21,15 +23,20 @@ from .const import (
     ATTR_PLACE_ID,
     ATTR_QUERY,
     ATTR_SESSION,
+    CARD_URL,
     CONF_CAR_DEVICE,
     CONF_WAKE,
     DOMAIN,
     SERVICE_ADD_FAVOURITE,
+    SERVICE_REMOVE_FAVOURITE,
     SERVICE_SEARCH,
     SERVICE_SEND,
+    SERVICE_SUGGESTIONS,
 )
 from .finder import Finder
+from .suggest import suggestions as build_suggestions
 
+_LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 SIGNAL_UPDATE = f"{DOMAIN}_update"
@@ -62,6 +69,8 @@ def _has_place(data: dict[str, Any]) -> dict[str, Any]:
 
 
 SEND_SCHEMA = vol.All(vol.Schema(PLACE_FIELDS), _has_place)
+ENTRY_SCHEMA = vol.Schema({vol.Optional(ATTR_CONFIG_ENTRY_ID): cv.string})
+REMOVE_SCHEMA = vol.Schema({vol.Optional(ATTR_CONFIG_ENTRY_ID): cv.string, vol.Required(ATTR_NAME): cv.string})
 
 
 def _entry(hass: HomeAssistant, call: ServiceCall) -> SendToCarConfigEntry:
@@ -121,10 +130,45 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         async_dispatcher_send(hass, f"{SIGNAL_UPDATE}_{entry.entry_id}")
         return {"added": added, **_out(place)}
 
+    async def suggestions(call: ServiceCall) -> ServiceResponse:
+        return await build_suggestions(hass, _entry(hass, call).runtime_data)
+
+    async def remove_favourite(call: ServiceCall) -> ServiceResponse:
+        entry = _entry(hass, call)
+        removed = entry.runtime_data.remove_favourite(call.data[ATTR_NAME])
+        async_dispatcher_send(hass, f"{SIGNAL_UPDATE}_{entry.entry_id}")
+        return {"removed": removed}
+
+    hass.services.async_register(DOMAIN, SERVICE_SUGGESTIONS, suggestions, schema=ENTRY_SCHEMA, supports_response=SupportsResponse.ONLY)
+    hass.services.async_register(DOMAIN, SERVICE_REMOVE_FAVOURITE, remove_favourite, schema=REMOVE_SCHEMA, supports_response=SupportsResponse.OPTIONAL)
+    await _register_card(hass)
     hass.services.async_register(DOMAIN, SERVICE_SEARCH, search, schema=SEARCH_SCHEMA, supports_response=SupportsResponse.ONLY)
     hass.services.async_register(DOMAIN, SERVICE_SEND, send, schema=SEND_SCHEMA, supports_response=SupportsResponse.OPTIONAL)
     hass.services.async_register(DOMAIN, SERVICE_ADD_FAVOURITE, add_favourite, schema=SEND_SCHEMA, supports_response=SupportsResponse.OPTIONAL)
     return True
+
+
+async def _register_card(hass: HomeAssistant) -> None:
+    """Serve the card and load it on every dashboard, so it shows in the card picker with no extra step. Skipped when there is no web server
+    (tests, safe mode)."""
+    if getattr(hass, "http", None) is None:
+        return
+    try:
+        from homeassistant.components.frontend import add_extra_js_url
+        from homeassistant.components.http import StaticPathConfig
+
+        path = Path(__file__).parent / "www" / "send-to-car-card.js"
+        await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), cache_headers=False)])
+        version = (await hass.async_add_executor_job(_version)) or "0"
+        add_extra_js_url(hass, f"{CARD_URL}?v={version}")
+    except Exception:
+        _LOGGER.warning("Could not register the Send to Car card", exc_info=True)
+
+
+def _version() -> str:
+    import json
+
+    return json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8")).get("version", "0")
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: SendToCarConfigEntry) -> bool:

@@ -82,37 +82,118 @@
       "name": "Search places",
       "description": "Finds up to five places, postcodes or saved places for what you type, nearest first.",
       "fields": {
-        "config_entry_id": {"name": "Car", "description": "Which Send to Car entry to use. Not needed when only one car is set up."},
-        "query": {"name": "Search for", "description": "A place, business, address or postcode (at least 3 letters)."},
-        "session": {"name": "Session", "description": "Optional. Reuse the same value for the searches and the send of one lookup, to keep Google's charges down."}
+        "config_entry_id": {
+          "name": "Car",
+          "description": "Which Send to Car entry to use. Not needed when only one car is set up."
+        },
+        "query": {
+          "name": "Search for",
+          "description": "A place, business, address or postcode (at least 3 letters)."
+        },
+        "session": {
+          "name": "Session",
+          "description": "Optional. Reuse the same value for the searches and the send of one lookup, to keep Google's charges down."
+        }
       }
     },
     "send": {
       "name": "Send to car",
       "description": "Sends a place to the car's navigation: a search result's place id, a postcode or address, or coordinates.",
       "fields": {
-        "config_entry_id": {"name": "Car", "description": "Which Send to Car entry to use. Not needed when only one car is set up."},
-        "place_id": {"name": "Place id", "description": "A Google place id from the search action."},
-        "query": {"name": "Place or address", "description": "Free text, such as a postcode or a calendar event's location. The best match is sent."},
-        "name": {"name": "Name", "description": "What to call the place."},
-        "address": {"name": "Address", "description": "The address line to keep with the place."},
-        "latitude": {"name": "Latitude", "description": "Send exact coordinates (with longitude)."},
-        "longitude": {"name": "Longitude", "description": "Send exact coordinates (with latitude)."},
-        "session": {"name": "Session", "description": "The same value used for the search."}
+        "config_entry_id": {
+          "name": "Car",
+          "description": "Which Send to Car entry to use. Not needed when only one car is set up."
+        },
+        "place_id": {
+          "name": "Place id",
+          "description": "A Google place id from the search action."
+        },
+        "query": {
+          "name": "Place or address",
+          "description": "Free text, such as a postcode or a calendar event's location. The best match is sent."
+        },
+        "name": {
+          "name": "Name",
+          "description": "What to call the place."
+        },
+        "address": {
+          "name": "Address",
+          "description": "The address line to keep with the place."
+        },
+        "latitude": {
+          "name": "Latitude",
+          "description": "Send exact coordinates (with longitude)."
+        },
+        "longitude": {
+          "name": "Longitude",
+          "description": "Send exact coordinates (with latitude)."
+        },
+        "session": {
+          "name": "Session",
+          "description": "The same value used for the search."
+        }
       }
     },
     "add_favourite": {
       "name": "Add favourite",
       "description": "Saves a place as a favourite, so it is suggested before you type.",
       "fields": {
-        "config_entry_id": {"name": "Car", "description": "Which Send to Car entry to use. Not needed when only one car is set up."},
-        "place_id": {"name": "Place id", "description": "A Google place id from the search action."},
-        "query": {"name": "Place or address", "description": "Free text, such as a postcode."},
-        "name": {"name": "Name", "description": "What to call the place."},
-        "address": {"name": "Address", "description": "The address line."},
-        "latitude": {"name": "Latitude", "description": "Exact coordinates (with longitude)."},
-        "longitude": {"name": "Longitude", "description": "Exact coordinates (with latitude)."},
-        "session": {"name": "Session", "description": "The same value used for the search."}
+        "config_entry_id": {
+          "name": "Car",
+          "description": "Which Send to Car entry to use. Not needed when only one car is set up."
+        },
+        "place_id": {
+          "name": "Place id",
+          "description": "A Google place id from the search action."
+        },
+        "query": {
+          "name": "Place or address",
+          "description": "Free text, such as a postcode."
+        },
+        "name": {
+          "name": "Name",
+          "description": "What to call the place."
+        },
+        "address": {
+          "name": "Address",
+          "description": "The address line."
+        },
+        "latitude": {
+          "name": "Latitude",
+          "description": "Exact coordinates (with longitude)."
+        },
+        "longitude": {
+          "name": "Longitude",
+          "description": "Exact coordinates (with latitude)."
+        },
+        "session": {
+          "name": "Session",
+          "description": "The same value used for the search."
+        }
+      }
+    },
+    "suggestions": {
+      "name": "Suggestions",
+      "description": "What to offer before anything is typed: today's calendar stops, favourites, recent places and zones, with the car's battery and range.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Car",
+          "description": "Which Send to Car entry to use. Not needed when only one car is set up."
+        }
+      }
+    },
+    "remove_favourite": {
+      "name": "Remove favourite",
+      "description": "Removes a favourite by its name.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Car",
+          "description": "Which Send to Car entry to use. Not needed when only one car is set up."
+        },
+        "name": {
+          "name": "Name",
+          "description": "The favourite's name."
+        }
       }
     }
   }

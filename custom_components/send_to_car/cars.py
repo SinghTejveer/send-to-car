@@ -67,3 +67,28 @@ async def send_position(hass: HomeAssistant, car: Car, lat: float, lon: float, *
         {"device_id": car.device_id, "gps": {"latitude": lat, "longitude": lon}, "order": 1},
         blocking=True,
     )
+
+
+def _state(hass: HomeAssistant, entity_id: str | None) -> tuple[float | None, str | None]:
+    st = hass.states.get(entity_id) if entity_id else None
+    if st is None:
+        return None, None
+    try:
+        return float(st.state), st.attributes.get("unit_of_measurement")
+    except (TypeError, ValueError):
+        return None, None
+
+
+def car_status(hass: HomeAssistant, device_id: str) -> dict[str, object]:
+    """The car's battery level and range for the card header, from its Teslemetry sensors when they are there."""
+    ent_reg = er.async_get(hass)
+    found: dict[str, str] = {}
+    for e in er.async_entries_for_device(ent_reg, device_id):
+        uid = e.unique_id or ""
+        if e.domain == "sensor" and uid.endswith("-charge_state_battery_level"):
+            found["battery"] = e.entity_id
+        elif e.domain == "sensor" and uid.endswith("-charge_state_battery_range"):
+            found["range"] = e.entity_id
+    battery, _ = _state(hass, found.get("battery"))
+    rng, unit = _state(hass, found.get("range"))
+    return {"battery": battery, "range": rng, "range_unit": unit, "battery_entity": found.get("battery"), "range_entity": found.get("range")}

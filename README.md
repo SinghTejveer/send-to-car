@@ -9,9 +9,10 @@ Search for a place, a business, a postcode or a calendar event's location from H
 - **Finds places the way you write them.** Google Places when you add a key; free OpenStreetMap search and exact UK postcodes without one.
 - **Nearest first.** Results are ranked by distance from home (or any zone you choose).
 - **Knows your places.** Favourites and recent places come first, and two places with the same name (two car parks a street apart) are marked so you pick the right one.
-- **Works in automations.** `send_to_car.search`, `send_to_car.send` and `send_to_car.add_favourite` actions.
+- **Before you type,** the card offers today's calendar stops, favourites, recent places and zones, with the car's battery and range.
+- **Works in automations.** `send_to_car.search`, `send_to_car.send`, `send_to_car.suggestions`, `send_to_car.add_favourite` and `send_to_car.remove_favourite` actions.
 
-> Status: early development (0.1). The dashboard card arrives in 0.2.
+> Status: early development (0.2).
 
 ## Supported cars
 
@@ -29,6 +30,14 @@ Search for a place, a business, a postcode or a calendar event's location from H
 ### Google Places key (optional)
 
 Better names for businesses and car parks. In Google Cloud, create a project, enable **Places API (New)** and create an API key restricted to that API. Personal use normally stays inside Google's free monthly allowance; check Google's current pricing first. The key is stored by Home Assistant and sent only to Google, in a request header.
+
+## The card
+
+The integration loads its card for you. On a dashboard, **Add card → Send to Car**. Type at least 3 letters, move with ↑ ↓, press Enter or tap to choose, then **Send to car**. Options: which car (only needed with more than one) and a title.
+
+```yaml
+type: custom:send-to-car-card
+```
 
 ## Actions
 
@@ -62,6 +71,8 @@ Searches go from your Home Assistant to the search provider you use (Google, Pho
 pip install -r requirements_test.txt
 pytest
 ```
+
+To work on the card without Home Assistant, serve the repository folder and open `dev/card.html` (add `?dark`, `?empty` or `?fail`).
 
 ## Licence
 

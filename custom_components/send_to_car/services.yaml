@@ -82,3 +82,21 @@ add_favourite:
     session:
       selector:
         text:
+
+suggestions:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: send_to_car
+
+remove_favourite:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: send_to_car
+    name:
+      required: true
+      selector:
+        text:

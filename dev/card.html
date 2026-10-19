@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Send to Car card harness</title>
+<!-- A development page: the card with stand-ins for Home Assistant's ha-card, ha-icon and the send_to_car actions. Serve the repo root and open
+     /dev/card.html. Add ?dark for the dark theme, ?empty for no saved places, ?fail to make sending fail. -->
+<style>
+  :root{--primary-color:#03a9f4;--rgb-primary-color:3,169,244;--primary-text-color:#212121;--secondary-text-color:#727272;--text-primary-color:#fff;
+    --card-background-color:#fff;--secondary-background-color:#f5f5f5;--divider-color:rgba(0,0,0,.12);--success-color:#2e7d32;--rgb-success-color:76,175,80;
+    --error-color:#db4437;--rgb-error-color:219,68,55;--warning-color:#ff9800;--bg:#fafafa;color-scheme:light}
+  :root.dark{--primary-color:#03a9f4;--primary-text-color:#e1e1e1;--secondary-text-color:#9b9b9b;--card-background-color:#1c1c1c;
+    --secondary-background-color:#282828;--divider-color:rgba(225,225,225,.12);--success-color:#81c784;--bg:#111;color-scheme:dark}
+  body{margin:0;background:var(--bg);font-family:Roboto,system-ui,sans-serif;font-size:14px;padding:24px max(16px,env(safe-area-inset-left,0px))}
+  .wrap{max-width:440px;margin:0 auto}
+  ha-card{display:block;background:var(--card-background-color);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  #log{max-width:440px;margin:16px auto 0;font:12px/1.5 ui-monospace,Consolas,monospace;color:var(--secondary-text-color);white-space:pre-wrap}
+</style>
+<script>
+  const P = new URLSearchParams(location.search);
+  if (P.has("dark")) document.documentElement.classList.add("dark");
+  customElements.define("ha-card", class extends HTMLElement {});
+  customElements.define("ha-icon", class extends HTMLElement {
+    static get observedAttributes() { return ["icon"]; }
+    attributeChangedCallback() { this.textContent = ({ "mdi:star": "★", "mdi:history": "↺", "mdi:calendar-clock": "▣", "mdi:magnify": "⌕", "mdi:close": "✕",
+      "mdi:mailbox-outline": "✉", "mdi:map-marker-radius": "◎" })[this.getAttribute("icon")] || "●"; }
+  });
+</script>
+<script src="../custom_components/send_to_car/www/send-to-car-card.js"></script>
+</head>
+<body>
+<div class="wrap" id="wrap"></div>
+<div id="log"></div>
+<script>
+  const log = (m) => (document.getElementById("log").textContent += m + "\n");
+  const places = [
+    { source: "google", name: "St John's (Upper) Car Park", address: "Luton Road, Chatham ME4 4BY", place_id: "a", latitude: null, longitude: null, distance_km: 13.4, distance_mi: 8.3, duplicates: 2 },
+    { source: "google", name: "St John's Car Park", address: "Clover Street, Chatham ME4 6AB", place_id: "b", latitude: null, longitude: null, distance_km: 13.0, distance_mi: 8.1, duplicates: 2 },
+    { source: "google", name: "St John's Church", address: "Railway Street, Chatham", place_id: "c", latitude: null, longitude: null, distance_km: 13.2, distance_mi: 8.2, duplicates: 0 },
+  ];
+  let favs = P.has("empty") ? [] : [{ source: "favourite", name: "Waterfront Way", address: "Chatham ME4 4DH", latitude: 51.38, longitude: 0.53, place_id: null, distance_km: 13.7, distance_mi: 8.5, duplicates: 0 }];
+  const sugg = () => ({
+    car: { name: "Model 3", battery: 78, range: 231, range_unit: "mi" },
+    google: true,
+    calendar: P.has("empty") ? [] : [{ source: "calendar", name: "Dentist", address: "12 High Street, Rochester ME1 1PY", time: "15:30" }],
+    favourites: favs,
+    recent: P.has("empty") ? [] : [{ source: "recent", name: "Dockside Outlet Centre", address: "Chatham ME4 4LL", latitude: 51.39, longitude: 0.54, distance_km: 13.4, distance_mi: 8.3, duplicates: 0 }],
+    zones: [{ source: "zone", name: "Home", address: "", latitude: 51.44, longitude: 0.37, distance_km: 0, distance_mi: 0, duplicates: 0 }],
+    last: null,
+  });
+  const hass = {
+    config: { unit_system: { length: "mi" } },
+    connection: {
+      async sendMessagePromise(msg) {
+        log(`→ ${msg.service} ${JSON.stringify(msg.service_data)}`);
+        await new Promise((r) => setTimeout(r, 150));
+        const d = msg.service_data;
+        if (msg.service === "suggestions") return { response: sugg() };
+        if (msg.service === "search") {
+          const q = d.query.toLowerCase();
+          const hits = [...favs, ...places].filter((p) => q.split(/\s+/).every((w) => (p.name + " " + p.address).toLowerCase().replace(/'/g, "").includes(w.replace(/'/g, ""))));
+          return { response: { query: d.query, results: hits.slice(0, 5), source: "google", notes: [] } };
+        }
+        if (msg.service === "send") {
+          if (P.has("fail")) throw { message: "Could not find “nowhere”. Try adding the town or the postcode." };
+          return { response: { car: "Model 3", name: d.name, address: d.address || "", latitude: 51.381, longitude: 0.531 } };
+        }
+        if (msg.service === "add_favourite") {
+          const added = !favs.some((f) => f.name === d.name);
+          if (added) favs = [...favs, { source: "favourite", name: d.name, address: d.address || "", latitude: 51.38, longitude: 0.53, distance_km: 13, distance_mi: 8.1, duplicates: 0 }];
+          return { response: { added, name: d.name } };
+        }
+        if (msg.service === "remove_favourite") {
+          favs = favs.filter((f) => f.name !== d.name);
+          return { response: { removed: true } };
+        }
+        throw { message: "Unknown action" };
+      },
+    },
+  };
+  const card = document.createElement("send-to-car-card");
+  card.setConfig({ type: "custom:send-to-car-card" });
+  card.hass = hass;
+  document.getElementById("wrap").appendChild(card);
+  window.card = card;
+</script>
+</body>
+</html>

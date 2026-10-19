@@ -158,11 +158,25 @@ async def _register_card(hass: HomeAssistant) -> None:
         from homeassistant.components.http import StaticPathConfig
 
         path = Path(__file__).parent / "www" / "send-to-car-card.js"
+        await hass.async_add_executor_job(_remove_stale_compressed, path)
         await hass.http.async_register_static_paths([StaticPathConfig(CARD_URL, str(path), cache_headers=False)])
         version = (await hass.async_add_executor_job(_version)) or "0"
         add_extra_js_url(hass, f"{CARD_URL}?v={version}")
     except Exception:
         _LOGGER.warning("Could not register the Send to Car card", exc_info=True)
+
+
+def _remove_stale_compressed(path: Path) -> None:
+    """A pre-compressed copy (.gz or .br) beside the card is sent to browsers in its place. Copies made from an older card would keep serving the
+    old card after an update, so remove any that is older than the card itself."""
+    for suffix in (".gz", ".br"):
+        copy = path.with_name(path.name + suffix)
+        try:
+            if copy.exists() and copy.stat().st_mtime < path.stat().st_mtime:
+                copy.unlink()
+                _LOGGER.info("Removed an out-of-date compressed copy of the card: %s", copy.name)
+        except OSError as err:
+            _LOGGER.warning("Could not remove %s: %s", copy, err)
 
 
 def _version() -> str:

@@ -33,3 +33,20 @@ async def test_card_and_manifest_versions_match() -> None:
 async def test_no_web_server_still_sets_up(hass: HomeAssistant) -> None:
     hass.http = None
     assert await async_setup_component(hass, DOMAIN, {})
+
+
+def test_an_older_compressed_copy_is_removed_and_a_newer_one_kept(tmp_path: Path) -> None:
+    import os
+
+    from custom_components.send_to_car import _remove_stale_compressed
+
+    card = tmp_path / "send-to-car-card.js"
+    card.write_text("new")
+    old_gz, new_br = tmp_path / "send-to-car-card.js.gz", tmp_path / "send-to-car-card.js.br"
+    old_gz.write_bytes(b"old")
+    new_br.write_bytes(b"new")
+    now = card.stat().st_mtime
+    os.utime(old_gz, (now - 60, now - 60))
+    os.utime(new_br, (now + 60, now + 60))
+    _remove_stale_compressed(card)
+    assert not old_gz.exists() and new_br.exists()

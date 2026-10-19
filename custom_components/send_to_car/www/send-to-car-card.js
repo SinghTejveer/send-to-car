@@ -3,7 +3,7 @@
  * Uses Home Assistant's theme variables, so it follows any theme, light or dark. No outside requests: everything goes through the
  * integration's actions (send_to_car.suggestions / search / send / add_favourite / remove_favourite). */
 (() => {
-  const VERSION = "0.2.3";
+  const VERSION = "0.2.4";
   const DOMAIN = "send_to_car";
   const MIN = 3;
   const SRC = {

@@ -3,7 +3,7 @@
  * Uses Home Assistant's theme variables, so it follows any theme, light or dark. No outside requests: everything goes through the
  * integration's actions (send_to_car.suggestions / search / send / add_favourite / remove_favourite). */
 (() => {
-  const VERSION = "0.2.4";
+  const VERSION = "0.2.5";
   const DOMAIN = "send_to_car";
   const MIN = 3;
   const SRC = {
@@ -42,6 +42,7 @@
       background:var(--secondary-background-color);border:1px solid var(--divider-color);color:var(--secondary-text-color)}
     .box:focus-within{border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(var(--rgb-primary-color,3,169,244),.18)}
     input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:15px;color:var(--primary-text-color);padding:10px 0}
+    input::-webkit-search-cancel-button,input::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
     input::placeholder{color:var(--secondary-text-color)}
     .clear{border:0;background:transparent;color:var(--secondary-text-color);cursor:pointer;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
     .clear[hidden]{display:none}

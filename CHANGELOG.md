@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.5
+
+- The search box shows one clear button: the browser's own was showing beside the card's.
+- README: screenshots of the card.
+
 ## 0.2.4
 
 First public release.

@@ -1,10 +1,12 @@
-<p align="center"><img src="images/icon.svg" width="96" alt="Send to Car icon: a pin dropping onto a road"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/images/icon.svg" width="96" alt="Send to Car icon: a pin dropping onto a road"></p>
 
 # Send to Car
 
 **Drop a pin. It's in your car.**
 
 Search for a place, a business, a postcode or a calendar event's location from Home Assistant, and send it to your car's navigation.
+
+<p><img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/docs/card-suggestions.png" alt="The card before typing: today's calendar stop, a favourite, a recent place and the Home zone, with the car's battery and range" width="360"> <img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/docs/card-search.png" alt="Searching for st johns car park: two car parks with the same name, marked, nearest first" width="360"></p>
 
 - **Finds places the way you write them.** Google Places when you add a key; free OpenStreetMap search and exact UK postcodes without one.
 - **Nearest first.** Results are ranked by distance from home (or any zone you choose).
@@ -32,6 +34,17 @@ Search for a place, a business, a postcode or a calendar event's location from H
 Better names for businesses and car parks. In Google Cloud, create a project, enable **Places API (New)** and create an API key restricted to that API. Personal use normally stays inside Google's free monthly allowance; check Google's current pricing first. The key is stored by Home Assistant and sent only to Google, in a request header.
 
 ## The card
+
+| Before you type | Search |
+| --- | --- |
+| <img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/docs/card-suggestions.png" alt="Suggestions before typing" width="360"> | <img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/docs/card-search.png" alt="Search results, nearest first" width="360"> |
+| **Choose, then send** | **Sent** |
+| <img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/docs/card-choose.png" alt="A chosen place with Send to car, Favourite and Cancel" width="360"> | <img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/docs/card-sent.png" alt="Confirmation that the place was sent to the car" width="360"> |
+
+It follows your Home Assistant theme, light or dark:
+
+<img src="https://raw.githubusercontent.com/SinghTejveer/send-to-car/main/docs/card-search-dark.png" alt="Search results in a dark theme" width="360">
+
 
 The integration loads its card for you. On a dashboard, **Add card → Send to Car**. Type at least 3 letters, move with ↑ ↓, press Enter or tap to choose, then **Send to car**. Options: which car (only needed with more than one), a title, and the distance units (`auto` follows Home Assistant, or `mi` / `km`).
 

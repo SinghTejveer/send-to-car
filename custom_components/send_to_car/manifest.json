@@ -1,0 +1,14 @@
+{
+  "domain": "send_to_car",
+  "name": "Send to Car",
+  "after_dependencies": ["teslemetry"],
+  "codeowners": ["@SinghTejveer"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/SinghTejveer/send-to-car",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/SinghTejveer/send-to-car/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

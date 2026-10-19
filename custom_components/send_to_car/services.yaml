@@ -1,0 +1,84 @@
+search:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: send_to_car
+    query:
+      required: true
+      example: "St John's car park Chatham"
+      selector:
+        text:
+    session:
+      selector:
+        text:
+
+send:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: send_to_car
+    place_id:
+      selector:
+        text:
+    query:
+      example: "ME4 4BY"
+      selector:
+        text:
+    name:
+      selector:
+        text:
+    address:
+      selector:
+        text:
+    latitude:
+      selector:
+        number:
+          min: -90
+          max: 90
+          step: any
+    longitude:
+      selector:
+        number:
+          min: -180
+          max: 180
+          step: any
+    session:
+      selector:
+        text:
+
+add_favourite:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: send_to_car
+    place_id:
+      selector:
+        text:
+    query:
+      example: "ME4 4BY"
+      selector:
+        text:
+    name:
+      selector:
+        text:
+    address:
+      selector:
+        text:
+    latitude:
+      selector:
+        number:
+          min: -90
+          max: 90
+          step: any
+    longitude:
+      selector:
+        number:
+          min: -180
+          max: 180
+          step: any
+    session:
+      selector:
+        text:

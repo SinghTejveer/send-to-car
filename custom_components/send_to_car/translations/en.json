@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Choose your car",
+        "description": "Cars found in Home Assistant that can receive a destination.",
+        "data": {
+          "car_device": "Car",
+          "wake_before_send": "Wake the car if it is asleep before sending"
+        },
+        "data_description": {
+          "wake_before_send": "Teslemetry charges more command credits for waking a car than for sending a destination."
+        }
+      },
+      "search": {
+        "title": "Search",
+        "description": "The Google key is optional. Without it, search uses OpenStreetMap and postcodes.io, which are free.",
+        "data": {
+          "google_places_key": "Google Places API key (optional)",
+          "search_zone": "Search near",
+          "country": "Country",
+          "uk_postcodes": "Look up full UK postcodes exactly (postcodes.io)"
+        },
+        "data_description": {
+          "google_places_key": "Better results for businesses and car parks. Kept in Home Assistant and sent only to Google. The Places API (New) must be on for the key.",
+          "search_zone": "Results are ranked by distance from this zone."
+        }
+      },
+      "suggestions": {
+        "title": "Suggestions before you type",
+        "data": {
+          "calendars": "Calendars with today's destinations",
+          "suggest_favourites": "Favourites and recent places",
+          "suggest_zones": "Home Assistant zones"
+        }
+      }
+    },
+    "error": {
+      "invalid_key": "Google refused this key. Check the key, and that the Places API (New) is enabled for it.",
+      "cannot_connect": "Could not reach Google to check the key. Try again."
+    },
+    "abort": {
+      "no_cars": "No supported car found. Set up the Teslemetry integration first.",
+      "already_configured": "This car is already set up."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Search",
+        "description": "The Google key is optional. Without it, search uses OpenStreetMap and postcodes.io.",
+        "data": {
+          "google_places_key": "Google Places API key (optional)",
+          "search_zone": "Search near",
+          "country": "Country",
+          "uk_postcodes": "Look up full UK postcodes exactly (postcodes.io)"
+        }
+      },
+      "suggestions": {
+        "title": "Suggestions before you type",
+        "data": {
+          "calendars": "Calendars with today's destinations",
+          "suggest_favourites": "Favourites and recent places",
+          "suggest_zones": "Home Assistant zones"
+        }
+      }
+    },
+    "error": {
+      "invalid_key": "Google refused this key. Check the key, and that the Places API (New) is enabled for it.",
+      "cannot_connect": "Could not reach Google to check the key. Try again."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_destination": {
+        "name": "Last destination"
+      }
+    }
+  },
+  "services": {
+    "search": {
+      "name": "Search places",
+      "description": "Finds up to five places, postcodes or saved places for what you type, nearest first.",
+      "fields": {
+        "config_entry_id": {"name": "Car", "description": "Which Send to Car entry to use. Not needed when only one car is set up."},
+        "query": {"name": "Search for", "description": "A place, business, address or postcode (at least 3 letters)."},
+        "session": {"name": "Session", "description": "Optional. Reuse the same value for the searches and the send of one lookup, to keep Google's charges down."}
+      }
+    },
+    "send": {
+      "name": "Send to car",
+      "description": "Sends a place to the car's navigation: a search result's place id, a postcode or address, or coordinates.",
+      "fields": {
+        "config_entry_id": {"name": "Car", "description": "Which Send to Car entry to use. Not needed when only one car is set up."},
+        "place_id": {"name": "Place id", "description": "A Google place id from the search action."},
+        "query": {"name": "Place or address", "description": "Free text, such as a postcode or a calendar event's location. The best match is sent."},
+        "name": {"name": "Name", "description": "What to call the place."},
+        "address": {"name": "Address", "description": "The address line to keep with the place."},
+        "latitude": {"name": "Latitude", "description": "Send exact coordinates (with longitude)."},
+        "longitude": {"name": "Longitude", "description": "Send exact coordinates (with latitude)."},
+        "session": {"name": "Session", "description": "The same value used for the search."}
+      }
+    },
+    "add_favourite": {
+      "name": "Add favourite",
+      "description": "Saves a place as a favourite, so it is suggested before you type.",
+      "fields": {
+        "config_entry_id": {"name": "Car", "description": "Which Send to Car entry to use. Not needed when only one car is set up."},
+        "place_id": {"name": "Place id", "description": "A Google place id from the search action."},
+        "query": {"name": "Place or address", "description": "Free text, such as a postcode."},
+        "name": {"name": "Name", "description": "What to call the place."},
+        "address": {"name": "Address", "description": "The address line."},
+        "latitude": {"name": "Latitude", "description": "Exact coordinates (with longitude)."},
+        "longitude": {"name": "Longitude", "description": "Exact coordinates (with latitude)."},
+        "session": {"name": "Session", "description": "The same value used for the search."}
+      }
+    }
+  }
+}

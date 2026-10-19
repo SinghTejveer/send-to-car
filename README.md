@@ -33,10 +33,11 @@ Better names for businesses and car parks. In Google Cloud, create a project, en
 
 ## The card
 
-The integration loads its card for you. On a dashboard, **Add card → Send to Car**. Type at least 3 letters, move with ↑ ↓, press Enter or tap to choose, then **Send to car**. Options: which car (only needed with more than one) and a title.
+The integration loads its card for you. On a dashboard, **Add card → Send to Car**. Type at least 3 letters, move with ↑ ↓, press Enter or tap to choose, then **Send to car**. Options: which car (only needed with more than one), a title, and the distance units (`auto` follows Home Assistant, or `mi` / `km`).
 
 ```yaml
 type: custom:send-to-car-card
+units: mi
 ```
 
 ## Actions

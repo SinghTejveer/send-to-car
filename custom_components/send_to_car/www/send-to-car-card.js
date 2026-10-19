@@ -3,7 +3,7 @@
  * Uses Home Assistant's theme variables, so it follows any theme, light or dark. No outside requests: everything goes through the
  * integration's actions (send_to_car.suggestions / search / send / add_favourite / remove_favourite). */
 (() => {
-  const VERSION = "0.2.1";
+  const VERSION = "0.2.2";
   const DOMAIN = "send_to_car";
   const MIN = 3;
   const SRC = {
@@ -306,9 +306,16 @@
       return this._sections().flatMap((s) => s.items);
     }
 
+    _miles() {
+      const u = this._config.units;
+      if (u === "mi") return true;
+      if (u === "km") return false;
+      return !!(this._hass && this._hass.config && this._hass.config.unit_system && this._hass.config.unit_system.length === "mi");
+    }
+
     _range(car) {
       if (car.range == null) return "";
-      const mi = this._hass && this._hass.config && this._hass.config.unit_system && this._hass.config.unit_system.length === "mi";
+      const mi = this._miles();
       const unit = String(car.range_unit || "").toLowerCase();
       if (mi && unit === "km") return `${Math.round(car.range / 1.609344)} mi`;
       if (!mi && unit === "mi") return `${Math.round(car.range * 1.609344)} km`;
@@ -316,7 +323,7 @@
     }
 
     _dist(it) {
-      const mi = this._hass && this._hass.config && this._hass.config.unit_system && this._hass.config.unit_system.length === "mi";
+      const mi = this._miles();
       const v = mi ? it.distance_mi : it.distance_km;
       if (v == null || (it.source === "zone" && v < 0.1)) return "";
       return `${v} ${mi ? "mi" : "km"}`;
@@ -414,16 +421,29 @@
         this._form.schema = [
           { name: "config_entry_id", selector: { config_entry: { integration: DOMAIN } } },
           { name: "title", selector: { text: {} } },
+          {
+            name: "units",
+            selector: {
+              select: {
+                mode: "dropdown",
+                options: [
+                  { value: "auto", label: "Same as Home Assistant" },
+                  { value: "mi", label: "Miles" },
+                  { value: "km", label: "Kilometres" },
+                ],
+              },
+            },
+          },
         ];
-        this._form.computeLabel = (s) => ({ config_entry_id: "Car (only needed with more than one)", title: "Title (optional)" })[s.name];
+        this._form.computeLabel = (s) => ({ config_entry_id: "Car (only needed with more than one)", title: "Title (optional)", units: "Distances in" })[s.name];
         this._form.addEventListener("value-changed", (e) => {
           const config = { ...this._config, ...e.detail.value };
-          Object.keys(config).forEach((k) => (config[k] === "" || config[k] == null) && delete config[k]);
+          Object.keys(config).forEach((k) => (config[k] === "" || config[k] == null || (k === "units" && config[k] === "auto")) && delete config[k]);
           this.dispatchEvent(new CustomEvent("config-changed", { detail: { config }, bubbles: true, composed: true }));
         });
         this.appendChild(this._form);
       }
-      this._form.data = this._config;
+      this._form.data = { units: "auto", ...this._config };
       if (this._hass) this._form.hass = this._hass;
     }
   }

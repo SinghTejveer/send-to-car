@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Send to Car card harness</title>
 <!-- A development page: the card with stand-ins for Home Assistant's ha-card, ha-icon and the send_to_car actions. Serve the repo root and open
-     /dev/card.html. Add ?dark for the dark theme, ?empty for no saved places, ?fail to make sending fail. -->
+     /dev/card.html. Add ?dark for the dark theme, ?empty for no saved places, ?fail to make sending fail, ?metric for a metric Home Assistant, ?units=mi or ?units=km for the card option. -->
 <style>
   :root{--primary-color:#03a9f4;--rgb-primary-color:3,169,244;--primary-text-color:#212121;--secondary-text-color:#727272;--text-primary-color:#fff;
     --card-background-color:#fff;--secondary-background-color:#f5f5f5;--divider-color:rgba(0,0,0,.12);--success-color:#2e7d32;--rgb-success-color:76,175,80;
@@ -50,7 +50,7 @@
     last: null,
   });
   const hass = {
-    config: { unit_system: { length: "mi" } },
+    config: { unit_system: { length: P.has("metric") ? "km" : "mi" } },
     connection: {
       async sendMessagePromise(msg) {
         log(`→ ${msg.service} ${JSON.stringify(msg.service_data)}`);
@@ -80,7 +80,7 @@
     },
   };
   const card = document.createElement("send-to-car-card");
-  card.setConfig({ type: "custom:send-to-car-card" });
+  card.setConfig({ type: "custom:send-to-car-card", ...(P.get("units") ? { units: P.get("units") } : {}) });
   card.hass = hass;
   document.getElementById("wrap").appendChild(card);
   window.card = card;
